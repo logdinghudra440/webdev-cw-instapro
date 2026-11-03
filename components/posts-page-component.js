@@ -1,15 +1,9 @@
-import { USER_POSTS_PAGE } from "../routes.js";
+import { USER_POSTS_PAGE, POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
-import { posts, goToPage } from "../index.js";
+import { posts, goToPage, user, getToken, page } from "../index.js";
+import { addLike, removeLike } from "../api.js";
 
 export function renderPostsPageComponent({ appEl }) {
-  // @TODO: реализовать рендер постов из api
-  /* console.log("Актуальный список постов:", posts); */
-
-  /**
-   * @TODO: чтобы отформатировать дату создания поста в виде "19 минут назад"
-   * можно использовать https://date-fns.org/v2.29.3/docs/formatDistanceToNow
-   */
     const postsHTML = (posts || []).map((post) => {
     return `
       <li class="post">
@@ -20,9 +14,15 @@ export function renderPostsPageComponent({ appEl }) {
         <div class="post-image-container">
           <img class="post-image" src="${post.imageUrl}">
         </div>
-        <div class="post-likes">
+          <div class="post-likes">
           <button data-post-id="${post.id}" class="like-button">
-            <img src="./assets/images/like-not-active.svg">
+            ${(() => {
+              if (user && post.likes && post.likes.some((like) => like.id === user.id)) {
+                return `<img src="./assets/images/like-active.svg">`;
+              } else {
+                return `<img src="./assets/images/like-not-active.svg">`; 
+              }
+            })()}
           </button>
           <p class="post-likes-text">
           Нравится: <strong>${post.likes ? post.likes.length : 0}</strong>
@@ -60,5 +60,38 @@ export function renderPostsPageComponent({ appEl }) {
         userId: userEl.dataset.userId,
       });
     });
+  const likeButtons = document.querySelectorAll(".like-button");
+  likeButtons.forEach((btn) => {
+    btn.addEventListener("click", async (event) => {
+      event.stopPropagation(); 
+      
+      const postId = btn.dataset.postId;
+      const post = posts.find((p) => p.id === postId);
+
+      if (!user) {
+        alert("Нужно авторизоваться");
+        return;
+      }
+
+      const isLiked = post.likes && post.likes.some((like) => like.id === user.id);
+      
+      try {
+
+        if (isLiked) {
+          await removeLike({ token: getToken(), postId });
+        } else {
+          await addLike({ token: getToken(), postId });
+        }
+
+        if (page === POSTS_PAGE) {
+          goToPage(POSTS_PAGE);
+        } else {
+          goToPage(USER_POSTS_PAGE, { userId: post.user.id });
+        }
+      } catch (error) {
+        alert("Ошибка: " + error.message);
+      }
+    });
+  });
   }
 }

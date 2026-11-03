@@ -102,3 +102,29 @@ export function getUserPosts({ token, userId }) {
       return data.posts;
     });
 }
+
+export async function addLike({ token, postId }) {
+  const response = await fetch(`${postsHost}/${postId}/likes`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+    },
+  });
+  if (!response.ok) {
+    throw new Error("Не удалось поставить лайк");
+  }
+  return response.json();
+}
+
+export async function removeLike({ token, postId }) {
+  const response = await fetch(`${postsHost}/${postId}/likes`, {
+    method: "DELETE",
+    headers: {
+      Authorization: token,
+    },
+  });
+  if (!response.ok) {
+    throw new Error("Не удалось убрать лайк");
+  }
+  return response.json();
+}
