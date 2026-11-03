@@ -55,7 +55,6 @@ export function loginUser({ login, password }) {
   });
 }
 
-// Загружает картинку в облако, возвращает url загруженной картинки
 export function uploadImage({ file }) {
   const data = new FormData();
   data.append("file", file);
@@ -66,4 +65,40 @@ export function uploadImage({ file }) {
   }).then((response) => {
     return response.json();
   });
+}
+
+export function addPost({ token, description, imageUrl }) {
+  return fetch(postsHost, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+    },
+    body: JSON.stringify({
+      description: description,
+      imageUrl: imageUrl,
+    }),
+  }).then((response) => {
+    if (!response.ok) {
+      throw new Error("Не удалось добавить пост");
+    }
+    return response.json();
+  });
+}
+
+export function getUserPosts({ token, userId }) {
+  return fetch(`${postsHost}/user-posts/${userId}`, {
+    method: "GET",
+    headers: {
+      Authorization: token,
+    },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Не удалось загрузить посты пользователя");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      return data.posts;
+    });
 }
