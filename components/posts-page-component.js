@@ -4,7 +4,7 @@ import { posts, goToPage, user, getToken, page } from "../index.js";
 import { addLike, removeLike } from "../api.js";
 
 export function renderPostsPageComponent({ appEl }) {
-    const postsHTML = (posts || []).map((post) => {
+  const postsHTML = (posts || []).map((post) => {
     return `
       <li class="post">
         <div class="post-header" data-user-id="${post.user.id}">
@@ -14,7 +14,7 @@ export function renderPostsPageComponent({ appEl }) {
         <div class="post-image-container">
           <img class="post-image" src="${post.imageUrl}">
         </div>
-          <div class="post-likes">
+        <div class="post-likes">
           <button data-post-id="${post.id}" class="like-button">
             ${(() => {
               if (user && post.likes && post.likes.some((like) => like.id === user.id)) {
@@ -33,7 +33,7 @@ export function renderPostsPageComponent({ appEl }) {
           ${post.description}
         </p>
         <p class="post-date">
-          ${new Date(post.createdAt).toLocaleString("ru-RU")}
+          ${dateFns.formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: dateFns.locale.ru })}
         </p>
       </li>
     `;
@@ -54,12 +54,16 @@ export function renderPostsPageComponent({ appEl }) {
     element: document.querySelector(".header-container"),
   });
 
+  // 1. Вешаем клик на имена пользователей
   for (let userEl of document.querySelectorAll(".post-header")) {
     userEl.addEventListener("click", () => {
       goToPage(USER_POSTS_PAGE, {
         userId: userEl.dataset.userId,
       });
     });
+  }
+
+  // 2. Вешаем клик на лайки (ЭТОТ БЛОК ДОЛЖЕН БЫТЬ ВНЕ ЦИКЛА FOR!)
   const likeButtons = document.querySelectorAll(".like-button");
   likeButtons.forEach((btn) => {
     btn.addEventListener("click", async (event) => {
@@ -76,7 +80,6 @@ export function renderPostsPageComponent({ appEl }) {
       const isLiked = post.likes && post.likes.some((like) => like.id === user.id);
       
       try {
-
         if (isLiked) {
           await removeLike({ token: getToken(), postId });
         } else {
@@ -93,5 +96,4 @@ export function renderPostsPageComponent({ appEl }) {
       }
     });
   });
-  }
 }

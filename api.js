@@ -104,12 +104,18 @@ export function getUserPosts({ token, userId }) {
 }
 
 export async function addLike({ token, postId }) {
-  const response = await fetch(`${postsHost}/${postId}/likes`, {
+  // Отправляем запрос на /likes, ID поста кладем в body
+  const response = await fetch(`${postsHost}/likes`, {
     method: "POST",
     headers: {
       Authorization: token,
+      "Content-Type": "application/json",
     },
+    body: JSON.stringify({ postId }),
   });
+  
+  console.log("Статус ответа на лайк:", response.status);
+
   if (!response.ok) {
     throw new Error("Не удалось поставить лайк");
   }
@@ -117,12 +123,16 @@ export async function addLike({ token, postId }) {
 }
 
 export async function removeLike({ token, postId }) {
-  const response = await fetch(`${postsHost}/${postId}/likes`, {
+  // Убираем лайк через DELETE
+  const response = await fetch(`${postsHost}/likes`, {
     method: "DELETE",
     headers: {
       Authorization: token,
+      "Content-Type": "application/json",
     },
+    body: JSON.stringify({ postId }),
   });
+  
   if (!response.ok) {
     throw new Error("Не удалось убрать лайк");
   }
