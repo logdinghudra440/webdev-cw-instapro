@@ -55,7 +55,6 @@ export function loginUser({ login, password }) {
   });
 }
 
-// Загружает картинку в облако, возвращает url загруженной картинки
 export function uploadImage({ file }) {
   const data = new FormData();
   data.append("file", file);
@@ -66,4 +65,76 @@ export function uploadImage({ file }) {
   }).then((response) => {
     return response.json();
   });
+}
+
+export function addPost({ token, description, imageUrl }) {
+  return fetch(postsHost, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+    },
+    body: JSON.stringify({
+      description: description,
+      imageUrl: imageUrl,
+    }),
+  }).then((response) => {
+    if (!response.ok) {
+      throw new Error("Не удалось добавить пост");
+    }
+    return response.json();
+  });
+}
+
+export function getUserPosts({ token, userId }) {
+  return fetch(`${postsHost}/user-posts/${userId}`, {
+    method: "GET",
+    headers: {
+      Authorization: token,
+    },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Не удалось загрузить посты пользователя");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      return data.posts;
+    });
+}
+
+export async function addLike({ token, postId }) {
+  // Отправляем запрос на /likes, ID поста кладем в body
+  const response = await fetch(`${postsHost}/likes`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ postId }),
+  });
+  
+  console.log("Статус ответа на лайк:", response.status);
+
+  if (!response.ok) {
+    throw new Error("Не удалось поставить лайк");
+  }
+  return response.json();
+}
+
+export async function removeLike({ token, postId }) {
+  // Убираем лайк через DELETE
+  const response = await fetch(`${postsHost}/likes`, {
+    method: "DELETE",
+    headers: {
+      Authorization: token,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ postId }),
+  });
+  
+  if (!response.ok) {
+    throw new Error("Не удалось убрать лайк");
+  }
+  return response.json();
 }
