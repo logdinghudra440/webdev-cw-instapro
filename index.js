@@ -10,10 +10,7 @@ export let user = getUserFromLocalStorage();
 export let page = null;
 export let posts = [];
 
-export const getToken = () => {
-  const token = user ? `Bearer ${user.token}` : undefined;
-  return token;
-};
+export const getToken = () => user ? `Bearer ${user.token}` : undefined;
 
 export const logout = () => {
   user = null;
@@ -22,15 +19,7 @@ export const logout = () => {
 };
 
 export const goToPage = (newPage, data) => {
-  if (
-    [
-      POSTS_PAGE,
-      AUTH_PAGE,
-      ADD_POSTS_PAGE,
-      USER_POSTS_PAGE,
-      LOADING_PAGE,
-    ].includes(newPage)
-  ) {
+  if ([POSTS_PAGE, AUTH_PAGE, ADD_POSTS_PAGE, USER_POSTS_PAGE, LOADING_PAGE].includes(newPage)) {
     if (newPage === ADD_POSTS_PAGE) {
       page = user ? ADD_POSTS_PAGE : AUTH_PAGE;
       return renderApp();
@@ -39,7 +28,6 @@ export const goToPage = (newPage, data) => {
     if (newPage === POSTS_PAGE) {
       page = LOADING_PAGE;
       renderApp();
-
       return getPosts({ token: getToken() })
         .then((newPosts) => {
           page = POSTS_PAGE;
@@ -47,16 +35,14 @@ export const goToPage = (newPage, data) => {
           renderApp();
         })
         .catch((error) => {
-        console.error(error);
-        const appEl = document.getElementById("app");
-        if (appEl) appEl.innerHTML = `<p style="padding: 20px; color: red;">Ошибка загрузки: ${error.message}</p>`;
+          const appEl = document.getElementById("app");
+          if (appEl) appEl.innerHTML = `<p style="padding: 20px; color: red;">Ошибка загрузки: ${error.message}</p>`;
         });
     }
 
-        if (newPage === USER_POSTS_PAGE) {
+    if (newPage === USER_POSTS_PAGE) {
       page = LOADING_PAGE;
       renderApp();
-
       return getUserPosts({ token: getToken(), userId: data.userId })
         .then((newPosts) => {
           page = USER_POSTS_PAGE;
@@ -64,75 +50,28 @@ export const goToPage = (newPage, data) => {
           renderApp();
         })
         .catch((error) => {
-        console.error(error);
-        const appEl = document.getElementById("app");
-        if (appEl) appEl.innerHTML = `<p style="padding: 20px; color: red;">Ошибка загрузки: ${error.message}</p>`;
+          const appEl = document.getElementById("app");
+          if (appEl) appEl.innerHTML = `<p style="padding: 20px; color: red;">Ошибка загрузки: ${error.message}</p>`;
         });
     }
-    
     page = newPage;
     renderApp();
-
     return;
   }
-
   throw new Error("страницы не существует");
 };
 
 const renderApp = () => {
   const appEl = document.getElementById("app");
-  if (page === LOADING_PAGE) {
-    return renderLoadingPageComponent({
-      appEl,
-      user,
-      goToPage,
-    });
-  }
-
-  if (page === AUTH_PAGE) {
-    return renderAuthPageComponent({
-      appEl,
-      setUser: (newUser) => {
-        user = newUser;
-        saveUserToLocalStorage(user);
-        goToPage(POSTS_PAGE);
-      },
-      user,
-      goToPage,
-    });
-  }
-
-  if (page === ADD_POSTS_PAGE) {
-    return renderAddPostPageComponent({
-      appEl,
-      onAddPostClick({ description, imageUrl }) {
-        
+  if (page === LOADING_PAGE) return renderLoadingPageComponent({ appEl, user, goToPage });
+  if (page === AUTH_PAGE) return renderAuthPageComponent({ appEl, setUser: (newUser) => { user = newUser; saveUserToLocalStorage(user); goToPage(POSTS_PAGE); }, user, goToPage });
+  if (page === ADD_POSTS_PAGE) return renderAddPostPageComponent({ appEl, onAddPostClick({ description, imageUrl }) {
         const btn = document.getElementById("add-button");
         if (btn) btn.textContent = "Загружаю...";
-
-        addPost({ token: getToken(), description, imageUrl })
-          .then(() => {
-            goToPage(POSTS_PAGE);
-          })
-          .catch((error) => {
-            alert("Ошибка: " + error.message);
-            if (btn) btn.textContent = "Опубликовать";
-          });
-      },
-    });
-  }
-
-  if (page === POSTS_PAGE) {
-    return renderPostsPageComponent({
-      appEl,
-    });
-  }
-
-    if (page === USER_POSTS_PAGE) {
-    return renderPostsPageComponent({
-      appEl,
-    });
-  }
+        addPost({ token: getToken(), description, imageUrl }).then(() => goToPage(POSTS_PAGE)).catch((error) => { alert("Ошибка: " + error.message); if (btn) btn.textContent = "Опубликовать"; });
+  }});
+  if (page === POSTS_PAGE) return renderPostsPageComponent({ appEl });
+  if (page === USER_POSTS_PAGE) return renderPostsPageComponent({ appEl });
 };
 
 goToPage(POSTS_PAGE);

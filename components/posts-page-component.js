@@ -2,7 +2,7 @@ import { USER_POSTS_PAGE, POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
 import { posts, goToPage, user, getToken, page } from "../index.js";
 import { addLike, removeLike } from "../api.js";
-import { escapeHtml } from "helpers.js";
+import { escapeHtml } from "../helpers.js";
 
 export function renderPostsPageComponent({ appEl }) {
   const postsHTML = (posts || []).map((post) => {
@@ -34,7 +34,9 @@ export function renderPostsPageComponent({ appEl }) {
           ${escapeHtml(post.description)}
         </p>
         <p class="post-date">
-          ${dateFns.formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: dateFns.locale.ru })}
+          ${typeof dateFns !== "undefined" 
+  ? dateFns.formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: dateFns.locale.ru }) 
+  : new Date(post.createdAt).toLocaleString("ru-RU")}
         </p>
       </li>
     `;

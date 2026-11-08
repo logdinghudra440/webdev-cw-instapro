@@ -118,27 +118,11 @@ export async function addLike({ token, postId }) {
 
 export async function removeLike({ token, postId }) {
   const response = await fetch(`${postsHost}/${postId}/dislike`, {
-    method: "POST", // По документации тут тоже POST!
+    method: "POST", 
     headers: {
       Authorization: token,
     },
   });
-  if (!response.ok) {
-    throw new Error("Не удалось убрать лайк");
-  }
-  return response.json();
-}
-
-export async function removeLike({ token, postId }) {
-  const response = await fetch(`${postsHost}/likes`, {
-    method: "DELETE",
-    headers: {
-      Authorization: token,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ postId }),
-  });
-  
   if (!response.ok) {
     throw new Error("Не удалось убрать лайк");
   }
