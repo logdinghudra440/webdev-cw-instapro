@@ -2,17 +2,18 @@ import { USER_POSTS_PAGE, POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
 import { posts, goToPage, user, getToken, page } from "../index.js";
 import { addLike, removeLike } from "../api.js";
+import { escapeHtml } from "helpers.js";
 
 export function renderPostsPageComponent({ appEl }) {
   const postsHTML = (posts || []).map((post) => {
     return `
       <li class="post">
         <div class="post-header" data-user-id="${post.user.id}">
-            <img src="${post.user.imageUrl}" class="post-header__user-image">
-            <p class="post-header__user-name">${post.user.name}</p>
+           <img src="${escapeHtml(post.user.imageUrl)}" class="post-header__user-image">
+            <p class="post-header__user-name">${escapeHtml(post.user.name)}</p>
         </div>
         <div class="post-image-container">
-          <img class="post-image" src="${post.imageUrl}">
+          <img class="post-image" src="${escapeHtml(post.imageUrl)}">
         </div>
         <div class="post-likes">
           <button data-post-id="${post.id}" class="like-button">
@@ -29,8 +30,8 @@ export function renderPostsPageComponent({ appEl }) {
           </p>
         </div>
         <p class="post-text">
-          <span class="user-name">${post.user.name}</span>
-          ${post.description}
+          <span class="user-name">${escapeHtml(post.user.name)}</span>
+          ${escapeHtml(post.description)}
         </p>
         <p class="post-date">
           ${dateFns.formatDistanceToNow(new Date(post.createdAt), { addSuffix: true, locale: dateFns.locale.ru })}
@@ -54,7 +55,6 @@ export function renderPostsPageComponent({ appEl }) {
     element: document.querySelector(".header-container"),
   });
 
-  // 1. Вешаем клик на имена пользователей
   for (let userEl of document.querySelectorAll(".post-header")) {
     userEl.addEventListener("click", () => {
       goToPage(USER_POSTS_PAGE, {
@@ -63,7 +63,6 @@ export function renderPostsPageComponent({ appEl }) {
     });
   }
 
-  // 2. Вешаем клик на лайки (ЭТОТ БЛОК ДОЛЖЕН БЫТЬ ВНЕ ЦИКЛА FOR!)
   const likeButtons = document.querySelectorAll(".like-button");
   likeButtons.forEach((btn) => {
     btn.addEventListener("click", async (event) => {

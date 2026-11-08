@@ -1,6 +1,6 @@
 import { goToPage, logout, user } from "../index.js";
 import { ADD_POSTS_PAGE, AUTH_PAGE, POSTS_PAGE } from "../routes.js";
-
+import { escapeHtml } from "../helpers.js";
 /**
  * Компонент заголовка страницы.
  * Этот компонент отображает шапку страницы с логотипом, кнопкой добавления постов/входа и кнопкой выхода (если пользователь авторизован).
@@ -24,7 +24,7 @@ export function renderHeaderComponent({ element }) {
       </button>
       ${
         user
-          ? `<button title="${user.name}" class="header-button logout-button">Выйти</button>`
+          ? `<button title="${escapeHtml(user.name)}" class="header-button logout-button">Выйти</button>`
           : ""
       }  
   </div>

@@ -38,8 +38,9 @@ export function renderAddPostPageComponent({ appEl, onAddPostClick }) {
       },
     });
 
-    document.getElementById("add-button").addEventListener("click", () => {
+    document.getElementById("add-button").addEventListener("click", (event) => {
       const description = document.getElementById("description-input").value;
+      const button = event.target;
 
       if (!description) {
         alert("Введите описание поста");
@@ -49,6 +50,10 @@ export function renderAddPostPageComponent({ appEl, onAddPostClick }) {
         alert("Загрузите фотографию");
         return;
       }
+
+      button.disabled = true; 
+      button.textContent = "Загружаю...";
+
       onAddPostClick({
         description: description,
         imageUrl: imageUrl,

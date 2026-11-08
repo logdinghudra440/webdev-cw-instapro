@@ -47,8 +47,9 @@ export const goToPage = (newPage, data) => {
           renderApp();
         })
         .catch((error) => {
-          console.error(error);
-          goToPage(POSTS_PAGE);
+        console.error(error);
+        const appEl = document.getElementById("app");
+        if (appEl) appEl.innerHTML = `<p style="padding: 20px; color: red;">Ошибка загрузки: ${error.message}</p>`;
         });
     }
 
@@ -63,8 +64,9 @@ export const goToPage = (newPage, data) => {
           renderApp();
         })
         .catch((error) => {
-          console.error(error);
-          goToPage(POSTS_PAGE); 
+        console.error(error);
+        const appEl = document.getElementById("app");
+        if (appEl) appEl.innerHTML = `<p style="padding: 20px; color: red;">Ошибка загрузки: ${error.message}</p>`;
         });
     }
     
