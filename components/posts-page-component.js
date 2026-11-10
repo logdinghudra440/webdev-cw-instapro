@@ -1,6 +1,6 @@
 import { USER_POSTS_PAGE, POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
-import { posts, goToPage, user, getToken, page } from "../index.js";
+import { posts, goToPage, user, getToken, page, updatePost } from "../index.js";
 import { addLike, removeLike } from "../api.js";
 import { escapeHtml } from "../helpers.js";
 
@@ -65,6 +65,7 @@ export function renderPostsPageComponent({ appEl }) {
     });
   }
 
+ 
   const likeButtons = document.querySelectorAll(".like-button");
   likeButtons.forEach((btn) => {
     btn.addEventListener("click", async (event) => {
@@ -81,17 +82,20 @@ export function renderPostsPageComponent({ appEl }) {
       const isLiked = post.likes && post.likes.some((like) => like.id === user.id);
       
       try {
-        if (isLiked) {
-          await removeLike({ token: getToken(), postId });
-        } else {
-          await addLike({ token: getToken(), postId });
-        }
+        const response = isLiked 
+          ? await removeLike({ token: getToken(), postId })
+          : await addLike({ token: getToken(), postId });
 
-        if (page === POSTS_PAGE) {
-          goToPage(POSTS_PAGE);
-        } else {
-          goToPage(USER_POSTS_PAGE, { userId: post.user.id });
-        }
+        const newPost = response.post; 
+        updatePost(newPost);         
+        const isLikedNow = newPost.likes.some((like) => like.id === user.id);
+        const postEl = btn.closest(".post");
+        
+        btn.querySelector("img").src = isLikedNow
+          ? "./assets/images/like-active.svg"
+          : "./assets/images/like-not-active.svg";
+          
+        postEl.querySelector(".post-likes-text strong").textContent = newPost.likes.length;
       } catch (error) {
         alert("Ошибка: " + error.message);
       }

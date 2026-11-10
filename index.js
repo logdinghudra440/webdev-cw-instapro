@@ -9,6 +9,9 @@ import { getUserFromLocalStorage, removeUserFromLocalStorage, saveUserToLocalSto
 export let user = getUserFromLocalStorage();
 export let page = null;
 export let posts = [];
+export const updatePost = (newPost) => {
+  posts = posts.map((p) => (p.id === newPost.id ? newPost : p));
+};
 
 export const getToken = () => user ? `Bearer ${user.token}` : undefined;
 
