@@ -90,11 +90,12 @@ export function renderPostsPageComponent({ appEl }) {
         updatePost(newPost);         
         const isLikedNow = newPost.likes.some((like) => like.id === user.id);
         const postEl = btn.closest(".post");
-        
-        btn.querySelector("img").src = isLikedNow
-          ? "./assets/images/like-active.svg"
-          : "./assets/images/like-not-active.svg";
-          
+        const img = btn.querySelector("img");
+        if (isLikedNow) {
+          img.src = "./assets/images/like-active.svg";
+        } else {
+          img.src = "./assets/images/like-not-active.svg";
+        }
         postEl.querySelector(".post-likes-text strong").textContent = newPost.likes.length;
       } catch (error) {
         alert("Ошибка: " + error.message);
