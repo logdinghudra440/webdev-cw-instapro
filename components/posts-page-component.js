@@ -17,13 +17,9 @@ export function renderPostsPageComponent({ appEl }) {
         </div>
         <div class="post-likes">
           <button data-post-id="${post.id}" class="like-button">
-            ${(() => {
-              if (user && post.likes && post.likes.some((like) => like.id === user.id)) {
-                return `<img src="./assets/images/like-active.svg">`;
-              } else {
-                return `<img src="./assets/images/like-not-active.svg">`; 
-              }
-            })()}
+            ${post.isLiked
+              ? `<img src="./assets/images/like-active.svg">`
+              : `<img src="./assets/images/like-not-active.svg">`}
           </button>
           <p class="post-likes-text">
           Нравится: <strong>${post.likes ? post.likes.length : 0}</strong>
@@ -88,14 +84,10 @@ export function renderPostsPageComponent({ appEl }) {
 
         const newPost = response.post; 
         updatePost(newPost);         
-        const isLikedNow = newPost.likes.some((like) => like.id === user.id);
         const postEl = btn.closest(".post");
-        const img = btn.querySelector("img");
-        if (isLikedNow) {
-          img.src = "./assets/images/like-active.svg";
-        } else {
-          img.src = "./assets/images/like-not-active.svg";
-        }
+        btn.querySelector("img").src = newPost.isLiked
+          ? "./assets/images/like-active.svg"
+          : "./assets/images/like-not-active.svg";
         postEl.querySelector(".post-likes-text strong").textContent = newPost.likes.length;
       } catch (error) {
         alert("Ошибка: " + error.message);
