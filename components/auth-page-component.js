@@ -97,7 +97,10 @@ export function renderAuthPageComponent({ appEl, setUser }) {
     }
 
     // Обработка клика на кнопку входа/регистрации
-    document.getElementById("login-button").addEventListener("click", () => {
+    document.getElementById("login-button").addEventListener("click", (event) => {
+      const button = event.target; 
+      button.disabled = true;      
+      button.textContent = "Загрузка...";
       setError("");
 
       if (isLoginMode) {
@@ -122,9 +125,10 @@ export function renderAuthPageComponent({ appEl, setUser }) {
           .catch((error) => {
             console.warn(error);
             setError(error.message);
+            button.disabled = false; 
+            button.textContent = isLoginMode ? "Войти" : "Зарегистрироваться"; 
           });
       } else {
-        // Обработка регистрации
         const login = document.getElementById("login-input").value;
         const name = document.getElementById("name-input").value;
         const password = document.getElementById("password-input").value;
@@ -156,17 +160,17 @@ export function renderAuthPageComponent({ appEl, setUser }) {
           .catch((error) => {
             console.warn(error);
             setError(error.message);
+            button.disabled = false; 
+            button.textContent = isLoginMode ? "Войти" : "Зарегистрироваться"; 
           });
       }
     });
 
-    // Обработка переключения режима (вход ↔ регистрация)
     document.getElementById("toggle-button").addEventListener("click", () => {
       isLoginMode = !isLoginMode;
-      renderForm(); // Перерисовываем форму с новым режимом
+      renderForm();
     });
   };
 
-  // Инициализация формы
   renderForm();
 }

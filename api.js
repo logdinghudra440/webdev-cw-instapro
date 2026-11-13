@@ -12,10 +12,8 @@ export function getPosts({ token }) {
     },
   })
     .then((response) => {
-      if (response.status === 401) {
-        throw new Error("Нет авторизации");
-      }
-
+      if (response.status === 401) throw new Error("Нет авторизации");
+      if (response.status === 500) throw new Error("Сервер сломался");
       return response.json();
     })
     .then((data) => {
@@ -33,9 +31,8 @@ export function registerUser({ login, password, name, imageUrl }) {
       imageUrl,
     }),
   }).then((response) => {
-    if (response.status === 400) {
-      throw new Error("Такой пользователь уже существует");
-    }
+    if (response.status === 400) throw new Error("Такой пользователь уже существует");
+    if (response.status === 500) throw new Error("Сервер сломался");
     return response.json();
   });
 }
@@ -48,14 +45,12 @@ export function loginUser({ login, password }) {
       password,
     }),
   }).then((response) => {
-    if (response.status === 400) {
-      throw new Error("Неверный логин или пароль");
-    }
+   if (response.status === 400) throw new Error("Неверный логин или пароль");
+   if (response.status === 500) throw new Error("Сервер сломался");
     return response.json();
   });
 }
 
-// Загружает картинку в облако, возвращает url загруженной картинки
 export function uploadImage({ file }) {
   const data = new FormData();
   data.append("file", file);
@@ -66,4 +61,65 @@ export function uploadImage({ file }) {
   }).then((response) => {
     return response.json();
   });
+}
+
+export function addPost({ token, description, imageUrl }) {
+  return fetch(postsHost, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+    },
+    body: JSON.stringify({
+      description: description,
+      imageUrl: imageUrl,
+    }),
+  }).then((response) => {
+    if (!response.ok) {
+      throw new Error("Не удалось добавить пост");
+    }
+    return response.json();
+  });
+}
+
+export function getUserPosts({ token, userId }) {
+  return fetch(`${postsHost}/user-posts/${userId}`, {
+    method: "GET",
+    headers: {
+      Authorization: token,
+    },
+  })
+    .then((response) => {
+      if (!response.ok) throw new Error("Не удалось загрузить посты пользователя");
+      if (response.status === 500) throw new Error("Сервер сломался");
+      return response.json();
+    })
+    .then((data) => {
+      return data.posts;
+    });
+}
+
+export async function addLike({ token, postId }) {
+  const response = await fetch(`${postsHost}/${postId}/like`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+    },
+  });
+  if (!response.ok) {
+    throw new Error("Не удалось поставить лайк");
+  }
+  return response.json();
+}
+
+export async function removeLike({ token, postId }) {
+  const response = await fetch(`${postsHost}/${postId}/dislike`, {
+    method: "POST", 
+    headers: {
+      Authorization: token,
+    },
+  });
+  if (!response.ok) {
+    throw new Error("Не удалось убрать лайк");
+  }
+  return response.json();
 }
